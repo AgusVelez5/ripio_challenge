@@ -1,17 +1,20 @@
 const Joi = require('joi')
 
 const schemas = {
-  hash: Joi.object({ hash: Joi.string().alphanum().required() }),
-  hashes: Joi.object({ hashes: Joi.array().items(Joi.string().alphanum().required()) })
+  address: Joi.string().hex().length(42).required(),
+  name: Joi.string().required(),
+  id: Joi.number().integer().required()
 }
 
-const validator = (schemaName, data) => {
-  const { value, error } = schemas[schemaName].validate(data)
+const validator = (schemas, data) => {
+  const schema = Joi.object(schemas)
+  const { value, error } = schema.validate(data)
   if (error) return error 
   
   return value
 }
 
 module.exports = {
+  schemas,
   validator
 }
