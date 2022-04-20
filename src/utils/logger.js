@@ -19,8 +19,25 @@ logger.error = err => {
 }
 
 if (DEVELOPMENT) {
+  const myFormatter = winston.format((info) => {
+    const {message} = info
+  
+    if (info.data) {
+      info.message = `${message} ${JSON.stringify(info.data)}`
+      delete info.data
+    }
+    
+    return info
+  })()
+
   logger.add(new winston.transports.Console({
-    format: winston.format.simple(),
+    format: winston.format.combine(
+      winston.format.timestamp({
+        format: 'YYYY-MM-DD HH:mm:ss',
+      }),
+      myFormatter,
+      winston.format.simple(),
+    ),
   }))
 }
 

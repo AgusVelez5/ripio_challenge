@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0", 
-    "title": "Proof of Existence Manager",
+    "title": "Ripio challenge",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
@@ -14,148 +14,206 @@
     }
   },
   "host": "localhost:3000",
-  "basePath": "/api",
+  "basePath": "/api/v1",
   "tags": [
-    { "name": "Stamp" },
-    { "name": "Verify" },
-    { "name": "Proofs" },
-    { "name": "Metrics" }
+    { "name": "Products" }
   ],
   "paths": {
-    "/stamp": { 
-      "post" : {
-        "tags": ["Stamp"],
-        "description": "Stamp a file on bitcoin blockchain",
-        "consumes": "multipart/form-data",
-        "parameters": [
-          {
-            "name": "file",
-            "in": "formData",
-            "description": "File that we want stamp",
-            "type": "file"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Stamped file",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/standar_response"
-                }
-              }
-            }
-          }
-        },
-        "produces": ["application/json"]
-      }
-    },
-    "/verify": { 
+    "/products": {
       "get" : {
-        "tags": ["Verify"],
-        "description": "Verify a file that was stamped on bitcoin blockchain",
+        "tags": ["Products"],
+        "description": "Get all products",
         "parameters": [
           {
-            "name": "hashes",
+            "name": "page",
             "in": "query",
-            "description": "Hashes of files that we want verify",
-            "type": "string",
-            "required": "true",
-            "example": "9748815223cb23d38b606f3bfde561a5c535da85ca879c8d1720daf465ecd843,e22ce4bbcd7129c5fac40b17aca78957366fbb3526696ca7f197a99c54434cb6"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Verification result",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/standar_response"
-                }
-              }
-            }
-          }
-        },
-        "produces": ["application/json"]
-      }
-    },
-    "/file_data": {
-      "get" : {
-        "tags": ["Proofs"],
-        "description": "Get data of files stamped",
-        "responses": {
-          "200": {
-            "description": "Files data",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/standar_response"
-                }
-              }
-            }
-          }
-        },
-        "produces": ["application/json"]
-      }
-    },
-    "/proof": {
-      "get" : {
-        "tags": ["Proofs"],
-        "description": "Stamp a file on bitcoin blockchain",
-        "parameters": [
-          {
-            "name": "hashes",
-            "in": "query",
-            "description": "Hashes of files that we want the proof",
-            "type": "string",
-            "required": "true",
-            "example": "9748815223cb23d38b606f3bfde561a5c535da85ca879c8d1720daf465ecd843,e22ce4bbcd7129c5fac40b17aca78957366fbb3526696ca7f197a99c54434cb6"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Proof files",
-            "content": {
-              "application/zip": {
-                "schema": {
-                  "type": "string",
-                  "format": "binary"
-                }
-              }
-            }
-          }
-        },
-        "produces": ["application/zip"]
-      }
-    },
-    "/metrics": {
-      "get" : {
-        "tags": ["Metrics"],
-        "description": "Get metrics of stamps, verifications and proofs",
-        "parameters": [
-          {
-            "name": "group_by",
-            "in": "query",
-            "description": "Data bin time",
-            "type": "string",
-            "required": "false",
-            "example": "1d"
+            "type": "integer",
+            "required": false
           },
           {
-            "name": "time_range",
+            "name": "limit",
             "in": "query",
-            "description": "Range limiter in the past",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
             "type": "string",
-            "required": "false"
+            "required": false
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "enum": [0, 1]
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "newOwner",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "enum": ["id", "name", "status", "owner", "newOwner"]
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "default": "asc",
+            "enum": ["asc", "desc"]
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "type": "boolean",
+            "description": "Refresh cache memory",
+            "required": false
           }
         ],
         "responses": {
           "200": {
-            "description": "Files data",
+            "description": "Successful request",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/standar_response"
+                  "$ref": "#/components/schemas/standard_response"
+                }
+              }
+            }
+          }
+        },
+        "produces": ["application/json"]
+      },
+      "post" : {
+        "tags": ["Products"],
+        "description": "Create a new product",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "body",
+            "description": "Product name",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "produces": ["text/plain"]
+    },
+    "/products/delegates/{addr}": { 
+      "get" : {
+        "tags": ["Products"],
+        "description": "Get delegated products to an address",
+        "parameters": [
+          {
+            "name": "addr",
+            "required": "true",
+            "in": "path",
+            "type": "string"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "integer",
+            "required": false
+          },
+          {
+            "name": "id",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "type": "integer",
+            "required": false,
+            "enum": [0, 1]
+          },
+          {
+            "name": "owner",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "newOwner",
+            "in": "query",
+            "type": "string",
+            "required": false
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "enum": ["id", "name", "status", "owner", "newOwner"]
+          },
+          {
+            "name": "orderBy",
+            "in": "query",
+            "type": "string",
+            "required": false,
+            "default": "asc",
+            "enum": ["asc", "desc"]
+          },
+          {
+            "name": "refresh",
+            "in": "query",
+            "type": "boolean",
+            "description": "Refresh cache memory",
+            "required": false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/standard_response"
                 }
               }
             }
@@ -163,17 +221,109 @@
         },
         "produces": ["application/json"]
       }
-    }
+    },
+    "/products/delegates": { 
+      "post" : {
+        "tags": ["Products"],
+        "description": "Delegate a product to another account",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "body",
+            "description": "Product id to delegate",
+            "type": "integer"
+          },
+          {
+            "name": "addr",
+            "in": "body",
+            "description": "Address of the delegate",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "produces": ["text/plain"]
+    },
+    "/products/delegates/accept": { 
+      "post" : {
+        "tags": ["Products"],
+        "description": "Accept a product from another account",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "body",
+            "description": "Product id to accept",
+            "type": "integer"
+          },
+          {
+            "name": "addr",
+            "in": "body",
+            "description": "Address of the acceptor",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful request",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "produces": ["text/plain"]
   },
   "components": {
     "schemas": {
-      "standar_response": {
-        "status": {
+      "standard_response": {
+        "previous_page": {
           "type": "integer",
-          "description": "HTTP Status response"
+          "nullable": true,
+          "description": "Previous page number"
         },
-        "data": {
-          "type": "String"
+        "next_page": {
+          "type": "integer",
+          "nullable": true,
+          "description": "Next page number"
+        },
+        "results": {
+          "type": "array",
+          "items": {
+            "id": {
+              "type": "integer"
+            },
+            "name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string",
+              "description": ""
+            },
+            "owner": {
+              "type": "string",
+              "description": ""
+            },
+            "newOwner": {
+              "type": "string",
+              "description": ""
+            }
+          }
         }
       }
     }

@@ -1,0 +1,22 @@
+version: '3.9'
+services:
+
+  redis_db:
+    image: redis:alpine
+    ports:
+      - '6379:6379'
+
+  api:
+    build: .
+    depends_on:
+      - redis_db
+    ports:
+      - "3000:3000"
+    environment:
+      - DEVELOPMENT=${DEVELOPMENT}
+      - ACCOUNT_KEY=${ACCOUNT_KEY}
+      - EXTRA_KEYS=${EXTRA_KEYS}
+      - MUMBAI_NODE_RPC_URL=${MUMBAI_NODE_RPC_URL}
+      - ARCHIVE_NODE_RPC_URL=${ARCHIVE_NODE_RPC_URL}
+      - LOGS_PATH=${LOGS_PATH}
+      - CACHE_URL=${CACHE_URL}

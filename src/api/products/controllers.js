@@ -17,45 +17,100 @@ const {
 
 // CONTROLLERS
 const getProducts = async (req, res, next) => {
-  req.data = await getProductsService()
+  const data_schema = {
+    id: schemas['id'],
+    name: schemas['name'],
+    status: schemas['status'],
+    owner: schemas['address'],
+    newOwner: schemas['address'],
+    sortBy: schemas['sortBy'],
+    orderBy: schemas['orderBy'],
+    page: schemas['page'],
+    limit: schemas['limit'],
+    refresh: schemas['refresh']
+  }
 
-  next()
+  if (typeof validator(data_schema, req.query) === 'string')
+    return res.status(400).send(validator(data_schema, req.query))
+
+
+  const result = await getProductsService(req.query.refresh)
+
+  if(next && result.status !== 500) {
+    req.data = result.data
+    return next()
+  }
+
+  res.status(result.status).send(result.data)
 }
 
 const createProduct = async (req, res) => {
-  if (typeof validator({ name: schemas['name'] }, req.body) === String)
-    return res.status(400).send(validator({ name: schemas['name'] }, req.body))
+  const data_schema = { 
+    name: schemas['name'].required() 
+  }
 
-  const result = await createProductService(req.query.hashes)
+  if (typeof validator(data_schema, req.body) === 'string')
+    return res.status(400).send(validator(data_schema, req.body))
 
-  res.status(200).send(result)
+  const result = await createProductService(req.body.name)
+
+  res.status(result.status).send(result.data)
 }
 
 const getDelegatedProducts = async (req, res, next) => {
-  if (typeof validator({ addr: schemas['address'] }, req.params) === String)
-    return res.status(400).send(validator({ addr: schemas['address'] }, req.params))
+  const data_schema = { 
+    addr: schemas['address'].required(),
+    id: schemas['id'],
+    name: schemas['name'],
+    status: schemas['status'],
+    owner: schemas['address'],
+    newOwner: schemas['address'],
+    sortBy: schemas['sortBy'],
+    orderBy: schemas['orderBy'],
+    page: schemas['page'],
+    limit: schemas['limit'],
+    refresh: schemas['refresh']
+  }
 
-  req.data = await getDelegatedProductsService(req.params.addr)
+  if (typeof validator(data_schema, { ...req.params, ...req.query }) === 'string')
+    return res.status(400).send(validator(data_schema, { ...req.params, ...req.query }))
 
-  next()
+  const result = await getDelegatedProductsService(req.params.addr, req.query.refresh)
+
+  if(next && result.status !== 500) {
+    req.data = result.data
+    return next()
+  }
+
+  res.status(result.status).send(result.data)
 }
 
 const delegateProduct = async (req, res) => {
-  if (typeof validator({ addr: schemas['address'] }, req.body) === String)
-    return res.status(400).send(validator({ addr: schemas['address'] }, req.body))
+  const data_schema = { 
+    id: schemas['id'].required(), 
+    addr: schemas['address'].required() 
+  }
 
-  const result = await delegateProductService(req.query.hashes)
+  if (typeof validator(data_schema, req.body) === 'string')
+    return res.status(400).send(validator(data_schema, req.body))
 
-  res.status(200).send(result)
+  const result = await delegateProductService(req.body.id, req.body.addr)
+
+  res.status(result.status).send(result.data)
 }
 
 const acceptProduct = async (req, res) => {
-  if (typeof validator({ id: schemas['id'] }, req.body) === String)
-    return res.status(400).send(validator({ addr: schemas['id'] }, req.body))
+  const data_schema = { 
+    id: schemas['id'].required(), 
+    addr: schemas['address'].required() 
+  }
 
-  const result = await acceptProductService(req.query.hashes)
+  if (typeof validator(data_schema, req.body) === 'string')
+    return res.status(400).send(validator(data_schema, req.body))
 
-  res.status(200).send(result)
+  const result = await acceptProductService(req.body.id, req.body.addr)
+
+  res.status(result.status).send(result.data)
 }
 
 // ROUTES
@@ -65,19 +120,4 @@ router.route('/delegates/:addr').get(getDelegatedProducts, filtering, sorting, p
 router.route('/delegates').post(delegateProduct)
 router.route('/delegates/accept').post(acceptProduct)
 
-
 module.exports = router
-
-
-/* 
-
-
-
-GET  /v1/products - Ver todos los productos disponibles con el detalle correspondiente.   // Filter by name, status, owner, newOwner - Also add pagination and sorting
-POST /v1/products (body :product_name) - Crear un producto nuevo desde una wallet configurada en el backend.
-GET  /v1/products/delegates/:addr - Ver todos los productos que tiene delegados determinada wallet // Filter by name, status, owner, newOwner - Also add pagination and sorting
-POST /v1/products/delegates (body :addr) - Delegar un producto a una wallet desde una wallet configurada en el backend.
-POST /v1/products/delegates/accept (body :product_id) -  Aceptar una delegación de un producto.
-
-
-*/

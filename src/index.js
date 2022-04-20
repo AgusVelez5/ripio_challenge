@@ -2,11 +2,11 @@ const compression = require('compression')
 const express = require('express')
 const { logger } = require('./utils/logger')
 const app = express()
-const port = process.env.PORT || 3000 
 const router = express.Router()
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const productsRoutes = require('./api/products')
+const { PORT } = require('./utils/constants')
 
 const swaggerUi = require('swagger-ui-express'),
       swaggerDocument = require('../docs/swagger.json')
@@ -17,7 +17,10 @@ app.use(cors())
 app.use(
   '/api/docs',
   swaggerUi.serve, 
-  swaggerUi.setup(swaggerDocument)
+  swaggerUi.setup(swaggerDocument, {
+    customCss: '.topbar { display: none }',
+    customSiteTitle: 'Ripio challenge docs'
+  })
 );
 
 app.use(bodyParser.urlencoded({ extended: false }))
@@ -35,4 +38,4 @@ app.use(router)
 
 app.use((req, res, _) => res.status(404).json(`${req.url} Not found`))
 
-app.listen(port, () => console.log("Express Listening at http://localhost:" + port))
+app.listen(PORT, () => console.log(`Express Listening at http://localhost:${PORT}`))

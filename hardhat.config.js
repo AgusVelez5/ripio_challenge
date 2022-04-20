@@ -1,7 +1,8 @@
 const { ACCOUNT_KEY, ARCHIVE_NODE_RPC_URL, EXTRA_KEYS, MUMBAI_NODE_RPC_URL } = require('./src/utils/env')
 require("@nomiclabs/hardhat-truffle5")
 require("@nomiclabs/hardhat-waffle")
-require("@nomiclabs/hardhat-web3");
+require("@nomiclabs/hardhat-web3")
+require("@nomiclabs/hardhat-ethers")
 
 const custom_tasks = require('./tasks/index.js')
 for (const t of custom_tasks) {

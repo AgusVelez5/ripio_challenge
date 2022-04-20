@@ -1,23 +1,12 @@
-FROM mhart/alpine-node:12 as build-stage
-
+FROM mhart/alpine-node:12
 WORKDIR /app
-
-COPY ./ /app/
-
+COPY package*.json ./
 RUN npm ci \
-  && npm cache clean --force \
-  && mv /app/node_modules /node_modules
-
-RUN npx hardhat compile
+  && npm cache clean --force 
+COPY . .
 
 FROM mhart/alpine-node:slim-12 
-
 WORKDIR /app
-
-COPY --from=build-stage /app .
-
-ENV PORT 3000
-
+COPY --from=0 /app/ ./
 EXPOSE 3000
-
-CMD npm start
+CMD ["node", "./src/index.js"]

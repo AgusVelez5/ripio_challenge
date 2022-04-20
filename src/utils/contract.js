@@ -1,4 +1,3 @@
-const { updateTxTo1559 } = require('./eth_utils')
 const { web3 } = require("hardhat")
 
 const Contract = contract => {
