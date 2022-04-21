@@ -27,6 +27,7 @@ const getNextIndex = currentIndex => {
 // SERVICES
 const getProductsService = async (refresh) => {
   try {
+    //const productInstance = await getProductInstance()
     const products_length = parseInt(await web3.eth.getStorageAt(PRODUCT_CONTRACT_ADDRESS, 0), 16),
           saved_products_length = await cache.get('products_length')
 
@@ -50,6 +51,8 @@ const getProductsService = async (refresh) => {
               status = second_storage.slice(second_storage.length - 2, second_storage.length),
               owner = `0x${second_storage.slice(second_storage.length - 42, second_storage.length - 2)}`,
               newOwner = `0x${third_storage.slice(second_storage.length - 40, second_storage.length)}`
+
+        // const { name, status, owner, newOwner } = await productInstance.invoke('products', { index: i })
 
         products.push({
           id: `${i}`,
