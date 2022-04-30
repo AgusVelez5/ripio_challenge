@@ -6,6 +6,7 @@ class CacheManager {
     this.client = redis.createClient(`${ cache_endpoint_url }`)
     this.promisified_get = promisify(this.client.get).bind(this.client)
     this.promisified_set = promisify(this.client.set).bind(this.client)
+    this.promisified_del = promisify(this.client.del).bind(this.client)
   }
 
   store(k, v, ...extra) {
@@ -25,6 +26,11 @@ class CacheManager {
         return null
       }
     }
+  }
+
+  delete(k) {
+    //console.log(`[Cache] Deleting ${ k }`)
+    return this.promisified_del(k)
   }
 
   async get_or_store(key, expire_time, refresh, on_miss) {

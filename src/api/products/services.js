@@ -28,15 +28,10 @@ const getNextIndex = currentIndex => {
 const getProductsService = async (refresh) => {
   try {
     //const productInstance = await getProductInstance()
-    const products_length = parseInt(await web3.eth.getStorageAt(PRODUCT_CONTRACT_ADDRESS, 0), 16),
-          saved_products_length = await cache.get('products_length')
-
-    if (products_length !== saved_products_length)
-      cache.store('products_length', products_length)
-
+    const products_length = parseInt(await web3.eth.getStorageAt(PRODUCT_CONTRACT_ADDRESS, 0), 16)
     refresh = refresh === "true" ? true : false
 
-    return HTTP_STATUS(200, await cache.get_or_store('products', CACHE_EXPIRE_IN_S, products_length !== saved_products_length || refresh, async _ => {
+    return HTTP_STATUS(200, await cache.get_or_store('products', CACHE_EXPIRE_IN_S, refresh, async _ => {
       const products = []
       let [first_index, hex_first_index] = [web3.utils.soliditySha3(0), web3.utils.soliditySha3(0)]
 
@@ -79,6 +74,8 @@ const createProductService = async product_name => {
     const productInstance = await getProductInstance(),
           res = await productInstance.estimateGasAndInvokeFrom(owner, 'createProduct', { _name: product_name })
 
+    cache.delete('products')
+
     return HTTP_STATUS(200, `Product created in the tx ${res.transactionHash} in the block ${res.blockNumber}`)
   } catch (err) {
     logger.error(err)
@@ -102,6 +99,8 @@ const delegateProductService = async (product_id, new_owner_address) => {
     const productInstance = await getProductInstance(),
           res = await productInstance.estimateGasAndInvokeFrom(owner, 'delegateProduct', { _productId: product_id, _newOwner: new_owner_address })
 
+    cache.delete('products')
+
     return HTTP_STATUS(200, `Product delegated in the tx ${res.transactionHash} in the block ${res.blockNumber}`)
   } catch (err) {
     logger.error(err)
@@ -117,6 +116,8 @@ const acceptProductService = async (product_id, acceptor_address) => {
 
     const productInstance = await getProductInstance(),
           res = await productInstance.estimateGasAndInvokeFrom(acceptor_account[0], 'acceptProduct', { _productId: product_id })
+
+    cache.delete('products')
 
     return HTTP_STATUS(200, `Product accepted in the tx ${res.transactionHash} in the block ${res.blockNumber}`)
   } catch (err) {

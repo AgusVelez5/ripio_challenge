@@ -15,6 +15,11 @@ class DevCacheManager {
     return this.cache[k]
   }
 
+  delete(k) {
+    console.log(`[DevCache] Deleting ${ k }`)
+    delete this.cache[k]
+  }
+
   async get_or_store(key, expire_time, refresh, on_miss) {
     const cache_entry = await this.get(key)
     if (cache_entry && !refresh)
